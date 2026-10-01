@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d0e13">
+<title>DISCPAD docs</title>
+<meta name="description" content="How DISCPAD works: launching a coin for a Discord server, where the fees go, and how owners claim.">
+<link rel="icon" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0d0e13; --panel:#15171f; --raised:#1c1f2a; --line:#272a38;
+    --text:#eceef6; --text-2:#a6abbf; --text-3:#8288a6; --act:#9b8cff; --money:#3ee59a;
+    --display:"Helvetica Neue","Inter Tight",Helvetica,Arial,sans-serif;
+    --body:"Helvetica Neue",Inter,Helvetica,Arial,sans-serif;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{background:var(--ink);overflow-x:clip}
+  body{background:radial-gradient(70% 45% at 78% 0%,rgba(155,140,255,.12),transparent 60%),var(--ink);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
+  a{color:var(--act);text-decoration:none} a:hover{text-decoration:underline;text-underline-offset:3px}
+  :focus-visible{outline:2px solid var(--act);outline-offset:3px}
+  .wrap{max-width:1080px;margin:0 auto;padding-inline:20px;position:relative;z-index:1}
+  header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:22px}
+  .brand{display:flex;align-items:center;gap:12px;color:var(--text)} .brand:hover{text-decoration:none}
+  .brand .mark{width:clamp(60px,6.4vw,80px);height:auto;filter:drop-shadow(0 6px 20px rgba(108,92,255,.5))}
+  .brand b{font-family:var(--display);font-weight:800;font-size:clamp(24px,2.6vw,30px);letter-spacing:-.02em;line-height:1}
+  nav{display:flex;gap:2px;align-items:center}
+  nav a{color:var(--text-2);font-size:15px;padding:8px 12px;border-radius:8px} nav a:hover{color:var(--text);background:var(--panel);text-decoration:none}
+  nav a.here{color:var(--text);background:none;text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:2px;text-decoration-color:var(--act)}
+  .xlink{display:inline-grid!important;place-items:center;width:40px;height:40px;padding:0!important} .xlink svg{width:18px;height:18px}
+  .intro{padding-block:40px 32px;max-width:720px}
+  h1{font-family:var(--display);font-weight:800;font-size:clamp(38px,5vw,58px);line-height:1;letter-spacing:-.035em}
+  .intro p{color:var(--text-2);font-size:18px;margin-top:14px}
+  .layout{display:grid;grid-template-columns:220px 1fr;gap:32px;align-items:start;padding-bottom:64px}
+  .layout > *{min-width:0}
+  .toc{position:sticky;top:20px;display:grid;padding:8px;background:var(--panel);border:1px solid var(--line);border-radius:14px}
+  .toc a{color:var(--text-2);font-size:15px;padding:8px 12px;border-radius:8px} .toc a:hover{color:var(--text);background:var(--raised);text-decoration:none}
+  article{display:grid;gap:12px} article > *{min-width:0}
+  .doc{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:26px 28px;scroll-margin-top:20px}
+  .doc h2{font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:-.02em;line-height:1.15;margin-bottom:10px}
+  .doc p,.doc li{color:var(--text-2);max-width:66ch}
+  .doc p + p{margin-top:10px}
+  .doc ol,.doc ul{padding-left:22px;display:grid;gap:8px;margin-top:10px}
+  .doc b{color:var(--text);font-weight:600}
+  .split{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:16px}
+  .share{background:var(--raised);border-radius:12px;padding:16px}
+  .share .n{font-family:var(--display);font-weight:800;font-size:40px;line-height:1;letter-spacing:-.03em}
+  .share .k{color:var(--text-2);font-size:14px;margin-top:4px}
+  .share.m .n{color:var(--money)}
+  .note{margin-top:14px;padding:14px 16px;border:1px dashed var(--line);border-radius:12px;color:var(--text-2);font-size:15px}
+  footer{border-top:1px solid var(--line);padding-block:24px 40px;color:var(--text-3);font-size:13px}
+  @media (max-width:820px){
+    .layout{grid-template-columns:1fr}
+    .toc{position:static;display:flex;overflow-x:auto;gap:6px;background:none;border:0;padding:0}
+    .toc a{white-space:nowrap;background:var(--panel);border:1px solid var(--line)}
+    .doc{padding:22px 18px}
+    nav a.hide-m{display:none}
+  }
+  /* ---------- liquid glass layer ---------- */
+  .glow{display:none}
+  .aurora{position:fixed;inset:-10%;z-index:0;pointer-events:none;filter:blur(90px) saturate(140%);opacity:.75}
+  .aurora i{position:absolute;border-radius:50%;animation:drift 26s ease-in-out infinite alternate}
+  .aurora i:nth-child(1){width:46vw;height:46vw;left:48%;top:-6%;background:#7b6cff}
+  .aurora i:nth-child(2){width:34vw;height:34vw;left:66%;top:22%;background:#2fd3a0;opacity:.55;animation-duration:32s;animation-direction:alternate-reverse}
+  .aurora i:nth-child(3){width:40vw;height:40vw;left:-8%;top:30%;background:#3d6bff;opacity:.45;animation-duration:38s}
+  .aurora i:nth-child(4){width:30vw;height:30vw;left:30%;top:80%;background:#c45cff;opacity:.35;animation-duration:30s}
+  @keyframes drift{to{transform:translate(-6vw,5vh) scale(1.15)}}
+  .grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+    background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+    background-size:56px 56px;-webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 20%,#000 30%,transparent 80%);mask-image:radial-gradient(ellipse 80% 60% at 50% 20%,#000 30%,transparent 80%)}
+
+  .glass,.launcher,.stat,.card,.board,.step,.claim,details,.window,.toc,.doc,.toast{
+    background:linear-gradient(145deg,rgba(255,255,255,.11),rgba(255,255,255,.035) 45%,rgba(255,255,255,.02)),rgba(13,14,24,.58);
+    border:1px solid rgba(255,255,255,.13);
+    backdrop-filter:blur(26px) saturate(170%);-webkit-backdrop-filter:blur(26px) saturate(170%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 1px 0 0 rgba(255,255,255,.07),inset 0 -1px 0 rgba(255,255,255,.04),0 24px 60px rgba(4,4,12,.45);
+  }
+  .launcher,.stat,.card,.board,.step,.claim,details,.window,.doc{position:relative}
+  .toc{position:sticky}
+  @media (max-width:820px){ .toc{position:static} }
+  /* specular sheen across the top edge */
+  .launcher::before,.stat::before,.card::before,.step::before,.claim::before,.doc::before{
+    content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    background:radial-gradient(120% 60% at 20% -10%,rgba(255,255,255,.16),transparent 55%);z-index:0}
+  .launcher > *,.stat > *,.card > *,.step > *,.claim > *,.doc > *{position:relative;z-index:1}
+  .launcher,.stat,.card,.board,.step,details,.doc,.toc{border-radius:22px}
+  .claim,.window{border-radius:26px}
+
+  /* header sits freely on the page */
+  header{padding-block:26px 8px}
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 16px 40px rgba(4,4,12,.4)}
+  nav a{border-radius:12px}
+  nav a:hover{background:none;color:var(--text)}
+
+  /* glossy buttons */
+  .btn{border-radius:14px;background:linear-gradient(180deg,#b9adff,#8b7bff 55%,#7663ff);color:#0b0a1a;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -2px 6px rgba(40,20,120,.35),0 8px 24px rgba(123,108,255,.45)}
+  .btn.ghost{background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.06));color:var(--text);border:1px solid rgba(255,255,255,.14);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 6px 18px rgba(0,0,0,.25)}
+  .btn.money{background:linear-gradient(180deg,#8ef5c6,#3ee59a 55%,#22c47c);color:#04140c;box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 8px 22px rgba(62,229,154,.35)}
+  .dbtn{border-radius:14px;box-shadow:inset 0 1px 0 #fff,0 8px 22px rgba(0,0,0,.35)}
+
+  /* glass inputs */
+  input{border-radius:14px;background:rgba(5,6,14,.45);border:1px solid rgba(255,255,255,.1);box-shadow:inset 0 2px 8px rgba(0,0,0,.35)}
+  input:focus{border-color:rgba(155,140,255,.8);box-shadow:inset 0 2px 8px rgba(0,0,0,.35),0 0 0 4px rgba(155,140,255,.18)}
+  .invite{border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}
+
+  /* high-tech details */
+  .stat .n{text-shadow:0 0 24px rgba(255,255,255,.12)}
+  .stat.m .n,.earn,.card .foot b,.msg .body .amt{text-shadow:0 0 18px rgba(62,229,154,.45)}
+  .rail{background:rgba(5,6,14,.45);border-right:1px solid rgba(255,255,255,.06)}
+  .chan-head{border-bottom:1px solid rgba(255,255,255,.07)}
+  .compose{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);border-radius:14px}
+  .msg.mention{background:rgba(240,178,50,.10)}
+  .claim .side{background:rgba(255,255,255,.04);border-left:1px solid rgba(255,255,255,.08)}
+  .step .num{background:linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,.06));box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
+  .pill{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08)}
+  .share{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:16px}
+  th{border-bottom-color:rgba(255,255,255,.08)} td{border-bottom-color:rgba(255,255,255,.06)}
+  footer{border-top-color:rgba(255,255,255,.08)}
+  @media (max-width:960px){ .claim .side{border-left:0;border-top:1px solid rgba(255,255,255,.08)} }
+  section,[id]{scroll-margin-top:24px}
+  @media (prefers-reduced-motion:reduce){ .aurora i{animation:none} }
+
+  /* ---------- type: minimal, with a soft fade toward the logo's lilac ---------- */
+  .lg,.lg2{
+    -webkit-box-decoration-break:clone;box-decoration-break:clone;
+    background-image:linear-gradient(180deg,#ffffff 0%,#f3f1ff 45%,#c9c2ff 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
+  }
+  .lg2{background-image:linear-gradient(180deg,#ffffff 0%,#e6e2ff 100%)}
+  h1,h2,.brand b{font-family:var(--display);-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+  h1{font-weight:700;letter-spacing:-.04em;line-height:1.02}
+  h2{font-weight:700;letter-spacing:-.03em}
+  .brand b{font-weight:600;letter-spacing:-.02em}
+</style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+<div class="grid-bg" aria-hidden="true"></div>
+<div class="wrap">
+  <header>
+    <a class="brand" href="./" aria-label="DISCPAD home">
+      <img class="mark" src="logo.png" alt="" width="76" height="58">
+      <b class="lg">DISCPAD</b>
+    </a>
+    <nav aria-label="main">
+      <a href="./#launch" class="hide-m">Launch</a>
+      <a href="./#servers" class="hide-m">Servers</a>
+      <a href="docs.html" class="here" aria-current="page">Docs</a>
+      <a class="xlink" href="https://x.com/disclaunchpad" target="_blank" rel="noopener" aria-label="DISCPAD on X"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+      <a href="./#claim">Claim fees</a>
+    </nav>
+  </header>
+
+  <div class="intro">
+    <h1><span class="lg">How DISCPAD works</span></h1>
+    <p>Launch a coin for any Discord server. Its creator fees are held for the server’s owner until they sign in and claim them.</p>
+  </div>
+
+  <div class="layout">
+    <nav class="toc" aria-label="on this page">
+      <a href="#launching">Launching a coin</a>
+      <a href="#fees">Where the fees go</a>
+      <a href="#claiming">Claiming as an owner</a>
+      <a href="#verify">Ownership check</a>
+      <a href="#invites">Invites and changes</a>
+      <a href="#rules">Rules</a>
+      <a href="#risk">Risk</a>
+    </nav>
+
+    <article>
+      <section class="doc" id="launching">
+        <h2><span class="lg2">Launching a coin</span></h2>
+        <ol>
+          <li>Paste a <b>Discord invite link</b> for the server the coin should pay, like <b>discord.gg/abc123</b>. DISCPAD shows the server’s name, icon and member count so you can check it’s the right one.</li>
+          <li>Give the coin a <b>name</b>, a <b>ticker</b> and an image.</li>
+          <li>Press <b>Launch coin</b> and approve the transaction in your wallet. The coin is created on pump.fun and trades there like any other coin.</li>
+        </ol>
+        <p style="margin-top:12px">The server doesn’t need to know about DISCPAD first. Anyone can launch for any server with a public invite, including their own.</p>
+      </section>
+
+      <section class="doc" id="fees">
+        <h2><span class="lg2">Where the fees go</span></h2>
+        <p>pump.fun charges a small creator fee on every buy and sell. DISCPAD collects that fee for each coin and splits it:</p>
+        <div class="split">
+          <div class="share m"><div class="n">90%</div><div class="k">held for the owner of the server the coin was launched for</div></div>
+          <div class="share"><div class="n">10%</div><div class="k">kept by DISCPAD to run the platform</div></div>
+        </div>
+        <p style="margin-top:14px">A server can have many coins launched for it. Its balance is the total across all of them, updated as trades happen.</p>
+      </section>
+
+      <section class="doc" id="claiming">
+        <h2><span class="lg2">Claiming as an owner</span></h2>
+        <ol>
+          <li>Go to <b>Claim fees</b> and press <b>Sign in with Discord</b>.</li>
+          <li>DISCPAD lists the servers your account owns, with each one’s balance.</li>
+          <li>Pick a server and add a <b>Solana wallet</b> address.</li>
+          <li>Press <b>Claim</b>. The balance is sent to that wallet, and the transaction link is shown so you can check it on Solscan.</li>
+        </ol>
+      </section>
+
+      <section class="doc" id="verify">
+        <h2><span class="lg2">Ownership check</span></h2>
+        <p>Discord sign-in tells DISCPAD which servers your account owns. Only the account that owns a server can claim its fees. Moderators and admins can see the balance but can’t withdraw it.</p>
+        <p>DISCPAD only asks Discord for your username and the list of servers you’re in. It can’t read messages, post, or change anything in your server.</p>
+      </section>
+
+      <section class="doc" id="invites">
+        <h2><span class="lg2">Invites and changes</span></h2>
+        <ul>
+          <li><b>Expired invite:</b> coins are tied to the server, not the link. Any new invite to the same server shows the same coins and balance.</li>
+          <li><b>New owner:</b> fees go to whoever owns the server at the moment they claim.</li>
+          <li><b>Never claimed:</b> fees stay set aside for the server, with no deadline.</li>
+        </ul>
+      </section>
+
+      <section class="doc" id="rules">
+        <h2><span class="lg2">Rules</span></h2>
+        <ul>
+          <li>Coins can’t impersonate DISCPAD or Discord.</li>
+          <li>Coins with hateful or explicit names or images are hidden from the site.</li>
+          <li>Launching a coin for a server doesn’t mean the server endorses it. Coins show “launched for”, not “by”.</li>
+        </ul>
+      </section>
+
+      <section class="doc" id="risk">
+        <h2><span class="lg2">Risk</span></h2>
+        <p>Coins launched through DISCPAD are memecoins. Their price can drop to zero. Fees depend on trading activity and aren’t guaranteed. Only use money you can afford to lose.</p>
+        <div class="note">DISCPAD is an independent project. Not affiliated with or endorsed by Discord Inc.</div>
+      </section>
+    </article>
+  </div>
+
+  <footer>Preview: DISCPAD is in development. Numbers shown on the site are simulated. · <a href="./">Back to DISCPAD</a> · <a href="https://x.com/disclaunchpad" target="_blank" rel="noopener">X</a></footer>
+</div>
+</body>
+</html>
